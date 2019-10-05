@@ -1,5 +1,8 @@
 import sys
 import requests
+import cssselect
+from lxml import html
+import codecs
 
 languages = {
     'c': 1,
@@ -42,4 +45,17 @@ data = {
 }
 
 response = requests.post('https://www.urionlinejudge.com.br/judge/en/runs/add', headers=headers, cookies=cookies, data=data)
-print(response.status_code)
+
+if response.status_code != 200:
+    print('Erro ao submeter código')
+    exit(0)
+
+while True:
+    page = html.fromstring(requests.get('https://www.urionlinejudge.com.br/judge/pt/runs', headers=headers, cookies=cookies).text)
+    result = page.cssselect('#element tbody tr td')[4].text_content().strip()
+    executiontime = page.cssselect('#element tbody tr td')[6].text_content().strip()
+
+    if result != '- In queue -':
+        print(result)
+        print(executiontime)
+        break
