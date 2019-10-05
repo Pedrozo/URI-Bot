@@ -1,43 +1,45 @@
+import sys
 import requests
-import cssselect
-import codecs
 
-from lxml import html
-
-cookies = {
-    'judge': 'usjahq4ht3tb8scrhcu5o5ftqk',
-    'csrfToken': '83f7e1301f98c1259bcebabd25df85097b3c07e5a2de7ea396f2b283285400d7263a8e83f7c4a85ef634cbe754d853fc726ca264cac4922eb1e1d110aec727c9'
+languages = {
+    'c': 1,
+    'c++': 2,
+    'java7': 3,
+    'python2': 4,
+    'python3': 5,
+    'ruby': 6,
+    'c#': 7,
+    'scala': 8,
+    'lua': 9,
+    'javascript': 10,
+    'java8': 11,
+    'go': 12,
+    'c99': 14,
+    'kotlin': 15,
+    'c++17': 16,
+    'haskell': 17,
+    'ocaml': 18,
+    'pascal': 19
 }
+
+with open(sys.argv[3]) as file:
+    code = file.read()
+
+with open('session') as file:
+    cookies = dict(c.split('=') for c in file.readline().replace(';', '').split(' '))
 
 headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36 OPR/63.0.3368.94'
 }
 
-response = requests.get('https://www.urionlinejudge.com.br/judge/en/runs/add', headers=headers, cookies=cookies)
-print(response)
-
-
 data = {
     '_method': 'POST',
-    '_csrfToken': cookies['csrfToken'],
-    'problem_id': 1001,
-    'language_id': 16,
+    'problem_id': sys.argv[1],
+    'language_id': languages[sys.argv[2].lower()],
     'template': 1,
-    'source_code': '''
-#include <iostream>
-
-using namespace std;
-
-int main() {
-    int a, b;
-    cin >> a >> b;
-
-    cout << "X = " << a + b << endl;
- 
-    return 0;
-}'''
+    '_csrfToken': cookies['csrfToken'],
+    'source_code': code
 }
 
 response = requests.post('https://www.urionlinejudge.com.br/judge/en/runs/add', headers=headers, cookies=cookies, data=data)
-
-print(response)
+print(response.status_code)
